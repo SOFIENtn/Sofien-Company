@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOFIEN'S COMPANY - PRO ENTERPRISE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide-react/0.263.1/lucide-react.min.js"></script>
+    <style>
+        body {
+            background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1920') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 flex items-center justify-center">
+
+    <!-- Hidden Audio: Coldplay & TINI - WE PRAY -->
+    <iframe style="display:none" width="0" height="0" src="https://www.youtube.com/embed/sWb-k4j1kks?autoplay=1&loop=1&playlist=sWb-k4j1kks" frameborder="0" allow="autoplay"></iframe>
+
+    <div class="glass-panel w-full max-w-6xl h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-slate-800 text-white p-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight">SOFIEN'S COMPANY <span class="text-blue-400 text-sm">PRO v3.1</span></h1>
+                <p class="text-slate-400 text-xs mt-1">Enterprise Asset & Profit Management</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="exportData()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-2 rounded-lg transition border border-slate-600">💾 BACKUP DATA</button>
+                <div id="clock" class="text-xl font-mono bg-slate-700 px-4 py-2 rounded-lg">00:00:00</div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex bg-slate-100 border-b border-slate-300">
+            <button onclick="openTab('inventory')" class="tab-btn flex-1 py-4 font-semibold text-slate-600 hover:bg-white active border-b-4 border-transparent">📦 INVENTORY</button>
+            <button onclick="openTab('history')" class="tab-btn flex-1 py-4 font-semibold text-slate-600 hover:bg-white border-b-4 border-transparent">📜 HISTORY</button>
+            <button onclick="openTab('dashboard')" class="tab-btn flex-1 py-4 font-semibold text-slate-600 hover:bg-white border-b-4 border-transparent">💰 DASHBOARD</button>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="flex-1 overflow-y-auto p-6">
+            
+            <!-- Tab: Inventory -->
+            <div id="inventory" class="tab-content active space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-white p-4 rounded-xl shadow-sm border">
+                    <input id="prodName" type="text" placeholder="Product Name" class="p-2 border rounded">
+                    <input id="prodCost" type="number" placeholder="Buy Cost ($)" class="p-2 border rounded">
+                    <input id="prodPrice" type="number" placeholder="Sell Price ($)" class="p-2 border rounded">
+                    <input id="prodQty" type="number" placeholder="Stock Qty" class="p-2 border rounded">
+                    <button onclick="saveItem()" class="bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition">SAVE ITEM</button>
+                </div>
+
+                <div class="flex gap-4">
+                    <input id="searchBar" oninput="renderInventory()" type="text" placeholder="🔍 Search products..." class="flex-1 p-3 border rounded-xl shadow-inner outline-none focus:ring-2 ring-blue-500">
+                </div>
+
+                <div class="bg-white rounded-xl shadow overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b">
+                            <tr>
+                                <th class="p-4">Product</th>
+                                <th class="p-4 text-center">Cost</th>
+                                <th class="p-4 text-center">Sell Price</th>
+                                <th class="p-4 text-center">Stock</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: History -->
+            <div id="history" class="tab-content">
+                <div class="bg-white rounded-xl shadow overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b text-sm">
+                            <tr>
+                                <th class="p-4 text-slate-500 uppercase">Date</th>
+                                <th class="p-4 text-slate-500 uppercase">Product</th>
+                                <th class="p-4 text-slate-500 uppercase">Price</th>
+                                <th class="p-4 text-slate-500 uppercase">Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Dashboard -->
+            <div id="dashboard" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-8 rounded-3xl shadow-lg border-l-8 border-green-500">
+                        <h3 class="text-slate-500 font-bold uppercase text-xs">Total Revenue</h3>
+                        <p id="dashRevenue" class="text-4xl font-black mt-2 text-slate-800">$0.00</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-lg border-l-8 border-red-500">
+                        <h3 class="text-slate-500 font-bold uppercase text-xs">Total Expenses</h3>
+                        <p id="dashCost" class="text-4xl font-black mt-2 text-slate-800">$0.00</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-lg border-l-8 border-blue-500">
+                        <h3 class="text-slate-500 font-bold uppercase text-xs">Net Profit</h3>
+                        <p id="dashProfit" class="text-4xl font-black mt-2 text-green-600">$0.00</p>
+                    </div>
+                </div>
+                <div class="mt-8 bg-slate-900 text-green-400 p-6 rounded-2xl font-mono text-sm leading-relaxed">
+                    <h4 class="text-white mb-2 underline">AI SYSTEM ADVISOR:</h4>
+                    <div id="aiAdvice">Analyzing market data... Standby.</div>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="bg-white/50 p-3 text-center text-[10px] text-slate-500">
+            SECURE ENTERPRISE DATA - LOCAL STORAGE ACTIVE
+        </footer>
+    </div>
+
+    <script>
+        let inventory = JSON.parse(localStorage.getItem('sofien_inv')) || [];
+        let history = JSON.parse(localStorage.getItem('sofien_hist')) || [];
+
+        function openTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('border-blue-600', 'text-blue-600'));
+            
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('border-blue-600', 'text-blue-600');
+            if(id === 'dashboard') runAnalysis();
+        }
+
+        function exportData() {
+            const data = {
+                inventory: inventory,
+                history: history,
+                exportDate: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sofien_company_backup_${new Date().toLocaleDateString()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function saveItem() {
+            const name = document.getElementById('prodName').value;
+            const cost = parseFloat(document.getElementById('prodCost').value);
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const qty = parseInt(document.getElementById('prodQty').value);
+
+            if(!name || isNaN(cost)) return;
+
+            const existingIndex = inventory.findIndex(i => i.name === name);
+            if(existingIndex > -1) {
+                inventory[existingIndex] = { name, cost, price, qty, sold: inventory[existingIndex].sold };
+            } else {
+                inventory.push({ name, cost, price, qty, sold: 0 });
+            }
+
+            saveData();
+            renderInventory();
+            clearInputs();
+        }
+
+        function executeSale(name) {
+            const item = inventory.find(i => i.name === name);
+            if(item && (item.qty - item.sold) > 0) {
+                item.sold += 1;
+                history.push({
+                    date: new Date().toLocaleString(),
+                    name: item.name,
+                    price: item.price,
+                    cost: item.cost
+                });
+                saveData();
+                renderInventory();
+            } else {
+                alert("OUT OF STOCK!");
+            }
+        }
+
+        function deleteItem(name) {
+            inventory = inventory.filter(i => i.name !== name);
+            saveData();
+            renderInventory();
+        }
+
+        function editItem(name) {
+            const item = inventory.find(i => i.name === name);
+            document.getElementById('prodName').value = item.name;
+            document.getElementById('prodCost').value = item.cost;
+            document.getElementById('prodPrice').value = item.price;
+            document.getElementById('prodQty').value = item.qty;
+        }
+
+        function saveData() {
+            localStorage.setItem('sofien_inv', JSON.stringify(inventory));
+            localStorage.setItem('sofien_hist', JSON.stringify(history));
+        }
+
+        function renderInventory() {
+            const filter = document.getElementById('searchBar').value.toLowerCase();
+            const table = document.getElementById('inventoryTable');
+            table.innerHTML = '';
+
+            inventory.filter(i => i.name.toLowerCase().includes(filter)).forEach(item => {
+                const remaining = item.qty - item.sold;
+                const row = `
+                    <tr class="border-b hover:bg-slate-50 transition">
+                        <td class="p-4 font-bold text-slate-700">${item.name}</td>
+                        <td class="p-4 text-center text-slate-500">$${item.cost}</td>
+                        <td class="p-4 text-center text-blue-600 font-bold">$${item.price}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${remaining < 3 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">
+                                ${remaining} Left
+                            </span>
+                        </td>
+                        <td class="p-4 text-right flex justify-end gap-2">
+                            <button onclick="executeSale('${item.name}')" class="bg-green-500 text-white p-2 rounded hover:bg-green-600">SELL</button>
+                            <button onclick="editItem('${item.name}')" class="bg-slate-200 text-slate-700 p-2 rounded hover:bg-slate-300">EDIT</button>
+                            <button onclick="deleteItem('${item.name}')" class="bg-red-100 text-red-600 p-2 rounded hover:bg-red-200">DEL</button>
+                        </td>
+                    </tr>
+                `;
+                table.innerHTML += row;
+            });
+
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const table = document.getElementById('historyTable');
+            table.innerHTML = '';
+            let rev = 0, cost = 0;
+
+            history.slice().reverse().forEach(h => {
+                const profit = h.price - h.cost;
+                rev += h.price;
+                cost += h.cost;
+                table.innerHTML += `
+                    <tr class="text-sm border-b">
+                        <td class="p-4 text-slate-400 font-mono">${h.date}</td>
+                        <td class="p-4 font-bold">${h.name}</td>
+                        <td class="p-4 text-blue-600">$${h.price}</td>
+                        <td class="p-4 text-green-600">+$${profit.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            // Expense includes remaining stock value
+            let stockExpense = inventory.reduce((acc, i) => acc + (i.cost * (i.qty - i.sold)), 0);
+
+            document.getElementById('dashRevenue').innerText = `$${rev.toFixed(2)}`;
+            document.getElementById('dashCost').innerText = `$${(cost + stockExpense).toFixed(2)}`;
+            document.getElementById('dashProfit').innerText = `$${(rev - cost).toFixed(2)}`;
+            document.getElementById('dashProfit').className = `text-4xl font-black mt-2 ${(rev - cost) >= 0 ? 'text-green-600' : 'text-red-600'}`;
+        }
+
+        function runAnalysis() {
+            const adviceDiv = document.getElementById('aiAdvice');
+            let rev = history.reduce((acc, h) => acc + h.price, 0);
+            let cost = history.reduce((acc, h) => acc + h.cost, 0);
+            let profit = rev - cost;
+
+            let msg = `[REPORT] Current Status: ${profit >= 0 ? 'POSITIVE GROWTH' : 'DEFICIT ALERT'}<br>`;
+            msg += `> Recommended Action: ${profit > 50 ? 'Expand inventory. Reinvest 30% of profits.' : 'Optimize pricing. Increase margins by 5%.'}<br>`;
+            
+            inventory.forEach(i => {
+                if((i.qty - i.sold) < 2) msg += `> URGENT: Refill stock for ${i.name} immediately.<br>`;
+            });
+
+            adviceDiv.innerHTML = msg;
+        }
+
+        function clearInputs() {
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodCost').value = '';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodQty').value = '';
+        }
+
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+        window.onload = renderInventory;
+    </script>
+</body>
+</html>
